@@ -1,7 +1,7 @@
 # build the server binary
 FROM golang:1.13.1 AS builder
 LABEL stage=server-intermediate
-WORKDIR /go/src//onboarding-demo
+WORKDIR /go/src/onboarding-demo
 
 COPY . .
 RUN go build -o bin/server ./cmd/server
@@ -14,7 +14,7 @@ WORKDIR /bin
 RUN mkdir -p /lib64 && \
     ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
 
-COPY --from=builder /go/src//onboarding-demo/bin/server .
+COPY --from=builder /go/src/onboarding-demo/bin/server .
 COPY pkg/pb/*.swagger.json www/swagger.json
-COPY --from=builder /go/src//onboarding-demo/db/migrations /db/migrations/
+COPY --from=builder /go/src/onboarding-demo/db/migrations /db/migrations/
 ENTRYPOINT ["server", "--gateway.swaggerFile", "www/swagger.json"]

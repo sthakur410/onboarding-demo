@@ -3,13 +3,14 @@
 package grpc_logrus
 
 import (
-	"context"
 	"path"
 	"time"
 
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
+	"github.com/grpc-ecosystem/go-grpc-middleware/tags/logrus"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
@@ -17,7 +18,7 @@ var (
 	// SystemField is used in every log statement made through grpc_logrus. Can be overwritten before any initialization code.
 	SystemField = "system"
 
-	// KindField describes the log field used to indicate whether this is a server or a client log statement.
+	// KindField describes the log gield used to incicate whether this is a server or a client log statment.
 	KindField = "span.kind"
 )
 
@@ -44,7 +45,11 @@ func UnaryServerInterceptor(entry *logrus.Entry, opts ...Option) grpc.UnaryServe
 			fields[logrus.ErrorKey] = err
 		}
 
-		o.messageFunc(newCtx, "finished unary call with code "+code.String(), level, code, err, fields)
+		levelLogf(
+			ctx_logrus.Extract(newCtx).WithFields(fields), // re-extract logger from newCtx, as it may have extra fields that changed in the holder.
+			level,
+			"finished unary call with code "+code.String())
+
 		return resp, err
 	}
 }
@@ -70,9 +75,33 @@ func StreamServerInterceptor(entry *logrus.Entry, opts ...Option) grpc.StreamSer
 			"grpc.code": code.String(),
 			durField:    durVal,
 		}
+		if err != nil {
+			fields[logrus.ErrorKey] = err
+		}
 
-		o.messageFunc(newCtx, "finished streaming call with code "+code.String(), level, code, err, fields)
+		levelLogf(
+			ctx_logrus.Extract(newCtx).WithFields(fields), // re-extract logger from newCtx, as it may have extra fields that changed in the holder.
+			level,
+			"finished streaming call with code "+code.String())
+
 		return err
+	}
+}
+
+func levelLogf(entry *logrus.Entry, level logrus.Level, format string, args ...interface{}) {
+	switch level {
+	case logrus.DebugLevel:
+		entry.Debugf(format, args...)
+	case logrus.InfoLevel:
+		entry.Infof(format, args...)
+	case logrus.WarnLevel:
+		entry.Warningf(format, args...)
+	case logrus.ErrorLevel:
+		entry.Errorf(format, args...)
+	case logrus.FatalLevel:
+		entry.Fatalf(format, args...)
+	case logrus.PanicLevel:
+		entry.Panicf(format, args...)
 	}
 }
 
@@ -95,6 +124,6 @@ func newLoggerForCall(ctx context.Context, entry *logrus.Entry, fullMethodString
 			})
 	}
 
-	callLog = callLog.WithFields(ctxlogrus.Extract(ctx).Data)
+	callLog = callLog.WithFields(ctx_logrus.Extract(ctx).Data)
 	return ctxlogrus.ToContext(ctx, callLog)
 }

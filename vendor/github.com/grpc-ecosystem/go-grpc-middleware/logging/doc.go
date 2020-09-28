@@ -28,7 +28,7 @@ https://github.com/opentracing/specification/blob/master/semantic_conventions.md
 
 Implementations
 
-There are three implementations at the moment: logrus, zap and kit
+There are two implementations at the moment: logrus and zap
 
 See relevant packages below.
 */

@@ -15,6 +15,56 @@
     "version": "version not set"
   },
   "paths": {
+    "/user": {
+      "post": {
+        "tags": [
+          "OnboardingDemo"
+        ],
+        "operationId": "OnboardingDemoCreateUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/serviceUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "POST operation response",
+            "schema": {
+              "$ref": "#/definitions/serviceCreateUserRes"
+            }
+          }
+        }
+      }
+    },
+    "/user/{id}": {
+      "get": {
+        "tags": [
+          "OnboardingDemo"
+        ],
+        "operationId": "OnboardingDemoReadUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GET operation response",
+            "schema": {
+              "$ref": "#/definitions/serviceReadUserRes"
+            }
+          }
+        }
+      }
+    },
     "/version": {
       "get": {
         "tags": [
@@ -33,6 +83,37 @@
     }
   },
   "definitions": {
+    "serviceCreateUserRes": {
+      "type": "object",
+      "properties": {
+        "User": {
+          "$ref": "#/definitions/serviceUser"
+        }
+      }
+    },
+    "serviceReadUserRes": {
+      "type": "object",
+      "properties": {
+        "User": {
+          "$ref": "#/definitions/serviceUser"
+        }
+      }
+    },
+    "serviceUser": {
+      "type": "object",
+      "properties": {
+        "dob": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
     "serviceVersionResponse": {
       "description": "TODO: Structure your own protobuf messages. Each protocol buffer message is a \nsmall logical record of information, containing a series of name-value pairs.",
       "type": "object",

@@ -32,16 +32,73 @@ option go_package = "onboarding-demo/pkg/pb;pb";
 message VersionResponse {
   string version = 1;
 }
+message User {
+  option (gorm.opts).ormable = true;
+  string id = 1;
+  string name = 2;
+  string dob = 3;
+}
 
+message CreateUserReq {
+  User User = 1; // User id blank
+}
+
+message CreateUserRes {
+  User User = 1; // User id filled in
+}
+
+// message UpdateUserReq {
+//   User User = 1;
+// }
+
+// message UpdateUserRes {
+//   User User = 1;
+// }
+
+message ReadUserReq {
+  string id = 1;
+}
+
+message ReadUserRes {
+  User User = 1;
+}
+
+// message DeleteUserReq {
+//   string id = 1;
+// }
+
+// message DeleteUserRes {
+//   bool success = 1;
+// }
+
+// message ListUserRequest {}
+
+// message ListUserResponse {
+//   User User = 1;
+// }
 // TODO: Define the OnboardingDemo service and its methods. Feel free
 // to change the name of OnboardingDemo to better-suit your naming
 // conventions.
 service OnboardingDemo {
+  option (gorm.server).autogen = true;
   rpc GetVersion (google.protobuf.Empty) returns (VersionResponse) {
     // TODO: Provide mappings between REST endpoints and service methods.
     option (google.api.http) = {
       get: "/version"
-    };
+    }; 
+  }
+  rpc ReadUser (ReadUserReq) returns (ReadUserRes) {
+    // TODO: Provide mappings between REST endpoints and service methods.
+    option (google.api.http) = {
+      get: "/user/{id}"
+    }; 
+  }
+  rpc CreateUser (CreateUserReq) returns (CreateUserRes) {
+    // TODO: Provide mappings between REST endpoints and service methods.
+    option (google.api.http) = {
+      post: "/user"
+      body: "User"
+    }; 
   }
 
 }
