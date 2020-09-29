@@ -2,7 +2,9 @@ package svc
 
 import (
 	"context"
+	"onboarding-demo/pkg/pb"
 	"testing"
+
 	"github.com/golang/protobuf/ptypes/empty"
 )
 
@@ -20,7 +22,7 @@ func TestGetVersion(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			server, err := NewBasicServer(nil)
+			server, err := NewOnboardingServer(nil)
 			if err != test.err {
 				t.Errorf("Unexpected error when creating server: %v - expected: %v",
 					err, test.err,
